@@ -1,10 +1,14 @@
 'use client'
 import Image from "next/image"
 import {useState, useEffect} from "react"
-import {firestore} from "@/firebase"
-import {Box, Modal, Typography, Stack, TextField, Button} from "@mui/material"
+import {auth, firestore} from "@/firebase"
+import {Box, Modal, Typography, Stack, TextField, Button, useMediaQuery} from "@mui/material"
 import {collection, deleteDoc, doc, getDocs, query, getDoc, setDoc} from "firebase/firestore"
 import './globals.css';
+import TopBar from "./TopBar"
+import Login from "./Login";
+import SignUp from "./SignUp";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
@@ -12,6 +16,8 @@ export default function Home() {
   const [itemName, setItemName] = useState("")
   const [quantityInput, setQuantityInput] = useState(1);
   const [searchInput, setSearchInput] = useState("");
+  const [user, setUser] = useState(null);
+  const [isLogin, setIsLogin] = useState(true);
 
   const capitalizeWords = (str) => {
     return str
@@ -19,7 +25,6 @@ export default function Home() {
       .map(word => word.charAt(0).toUpperCase() + word.slice(1)) 
       .join(' '); 
   };
-  
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"))
@@ -81,13 +86,30 @@ export default function Home() {
   }
 
   useEffect(() => {
-    updateInventory();
-  }, [])
-
-  
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        updateInventory();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setUser(null); 
+  };
+
+  const isMobile = useMediaQuery("(max-width:600px");
+
+  if (!user) {
+    return isLogin
+    ? <Login onLogin={() => updateInventory()} onToggle={() => setIsLogin(false)} />
+    : <SignUp onSignUp={() => updateInventory()} onToggle={()=> setIsLogin(true)} />;
+  }
 
   return (
     
@@ -99,17 +121,19 @@ export default function Home() {
     bgcolor="#edd96c"
     position="relative"
     alignItems="center"
+    paddingTop={isMobile ? 8 : 10}
     >
+
+      <TopBar user={user} onLogout={handleLogout} />
+
       <Box
       width="100%"
       display="flex"
       justifyContent="center"
-      position="absolute"
-      top={0}
-      pt={2}
+      pt={isMobile ? 2 : 0}
       >
         <Typography 
-        variant="h2" 
+        variant={isMobile ? "h4" : "h2"} 
         color="#333" 
         className="space-mono-regular"
         align="center"
@@ -128,7 +152,7 @@ export default function Home() {
         position="absolute" 
         top="50%" 
         left="50%"
-        width={400}
+        width={isMobile ? '90%' : 400}
         bgcolor="#edd96c"
         border="2px solid #000"
         boxShadow={24}
@@ -145,7 +169,7 @@ export default function Home() {
           <Typography variant="h6" className="space-mono-regular"> Add Item </Typography>
             <Stack 
             width="100%" 
-            direction="row" 
+            direction={isMobile? "column" : "row"} 
             justifyContent="space-between"
             spacing={2}
             > 
@@ -209,18 +233,21 @@ export default function Home() {
       bgcolor="#edd96c"
       justifyContent="center"
       alignItems="center"
-      paddingTop={15}
+      width="100%"
+      padding={isMobile ? 5 : 5}
+      position="relative"
       >
+
         <Button 
-      variant="contained"
-       onClick={()=>{
-        handleOpen()
-      }}
-      className="space-mono-regular"
-      alignItems="center"
-      >
-        Add New Item
-      </Button>
+        variant="contained"
+        onClick={()=>{
+          handleOpen()
+        }}
+        className="space-mono-regular"
+        alignItems="center"
+        >
+          Add New Item
+        </Button>
       </Box>
 
       <Box
@@ -228,7 +255,8 @@ export default function Home() {
       flexDirection="column"
       bgcolor="#edd96c"
       position="absolute"
-      top={190}
+      mt={20}
+      width="100%"
       >
 
         <TextField
@@ -236,7 +264,7 @@ export default function Home() {
         label="Search Items"
         variant="outlined"
         size="small"
-        style={{ width: '800px', marginTop: '20px' }} 
+        style={{ width: '100%', marginTop: '20px' }} 
         value={searchInput}
         onChange={(e) => setSearchInput(e.target.value)} 
         InputLabelProps={{
@@ -253,7 +281,7 @@ export default function Home() {
       
       <Stack
       width="800px" 
-      height="65vh" 
+      height={isMobile ? "50vh" : "65vh"} 
       spacing={7.5} 
       overflow="auto"
       padding={3}
@@ -270,10 +298,12 @@ export default function Home() {
             alignItems="center" 
             justifyContent="space-between" 
             bgcolor="#edd96c"
+            padding={1}
+            flexDirection={isMobile ? "column" : "row"}
             >
 
               <Typography 
-              variant="h3"
+              variant="h5"
               color="#333"
               textAlign="center"
               className="space-mono-regular"
@@ -282,7 +312,7 @@ export default function Home() {
               </Typography>
 
               <Typography 
-              variant="h3"
+              variant="h5"
               color="#333"
               textAlign="center"
               className="space-mono-regular"
