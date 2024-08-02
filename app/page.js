@@ -11,6 +11,15 @@ export default function Home() {
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState("")
   const [quantityInput, setQuantityInput] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+
+  const capitalizeWords = (str) => {
+    return str
+      .split(' ') 
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1)) 
+      .join(' '); 
+  };
+  
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"))
@@ -46,7 +55,8 @@ export default function Home() {
 
     if (docSnap.exists()){
       const {quantity} = docSnap.data()
-      if (quantity === 1) {
+      
+      if (quantity <= 1) {
         await deleteDoc(docRef)
       }
       else {
@@ -57,6 +67,19 @@ export default function Home() {
     await updateInventory()
   }
 
+  const clearItem = async (item) => {
+    const docRef = doc(collection(firestore, "inventory"), item)
+
+    try {
+      await deleteDoc(docRef);
+      await updateInventory();
+      console.log(`Document for item ${item} successfully deleted.`)
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+    }
+
+  }
+
   useEffect(() => {
     updateInventory()
   }, [])
@@ -65,17 +88,40 @@ export default function Home() {
   const handleClose = () => setOpen(false)
 
   return (
+    
     <Box 
     width="100vw"
     height="100vh"
     display="flex"
     flexDirection="column"
-    justifyContent="center"
-    alignItems="center"
-    gap={2}
     bgcolor="#edd96c"
+    position="relative"
+    alignItems="center"
     >
+      <Box
+      width="100%"
+      display="flex"
+      justifyContent="center"
+      position="absolute"
+      top={0}
+      pt={2}
+      >
+        <Typography 
+        variant="h2" 
+        color="#333" 
+        className="space-mono-regular"
+        align="center"
+        
+        >
+            Inventory Items
+        </Typography>
+
+      </Box>
+
+
+      {/* add item pop up */}
       <Modal open={open} onClose={handleClose}>
+
         <Box 
         position="absolute" 
         top="50%" 
@@ -93,13 +139,14 @@ export default function Home() {
           transform: 'translate(-50%,-50%)',
         }}
         > 
+
           <Typography variant="h6" className="space-mono-regular"> Add Item </Typography>
-          <Stack 
-          width="100%" 
-          direction="row" 
-          justifyContent="space-between"
-          spacing={2}
-          >
+            <Stack 
+            width="100%" 
+            direction="row" 
+            justifyContent="space-between"
+            spacing={2}
+            > 
 
             <TextField
             variant="outlined"
@@ -108,6 +155,27 @@ export default function Home() {
               setItemName(e.target.value.trim().toLowerCase())
             }}
             />
+
+              <TextField
+              id="standard-number"
+              label="Enter number:"
+              type="number"
+              InputLabelProps={{
+                classes: {
+                  root: "space-mono-regular",
+                },
+              }}
+              InputProps={{
+                classes: {
+                  input: "space-mono-regular",
+                }
+              }}
+              variant="standard"
+              size="small"
+              style={{ width: '200px' }}
+              value={quantityInput}
+              onChange={(e) => setQuantityInput(Number(e.target.value))}
+              />
 
             <Button
             variant="outlined"
@@ -127,41 +195,66 @@ export default function Home() {
 
       </Modal>
 
-      <Button 
+
+      <Box 
+      display="flex"
+      flexDirection="column"
+      bgcolor="#edd96c"
+      justifyContent="center"
+      alignItems="center"
+      paddingTop={15}
+      >
+        <Button 
       variant="contained"
        onClick={()=>{
         handleOpen()
       }}
       className="space-mono-regular"
+      alignItems="center"
       >
         Add New Item
       </Button>
+      </Box>
 
-      <Box border="1px solid #333">
-        <Box
-        width="800px"
-        height="100px"
-        bgcolor="#edd96c"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        >
+      <Box
+      display="flex"
+      flexDirection="column"
+      bgcolor="#edd96c"
+      position="absolute"
+      top={190}
+      >
 
-          <Typography variant="h2" color="#333" className="space-mono-regular">
-            Inventory Items
-          </Typography>
-
-        </Box>
-
+        <TextField
+        id="search-bar"
+        label="Search Items"
+        variant="outlined"
+        size="small"
+        style={{ width: '800px', marginTop: '20px' }} 
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)} 
+        InputLabelProps={{
+          classes: {
+            root: "space-mono-regular",
+          },
+        }}
+        InputProps={{
+          classes: {
+            input: "space-mono-regular",
+          }
+        }}
+        />
+      
       <Stack
       width="800px" 
-      height="300px" 
-      spacing={2} 
+      height="65vh" 
+      spacing={7.5} 
       overflow="auto"
       padding={3}
       >
         {
-          inventory.map(({name, quantity}) => (
+          inventory
+          .filter(({name}) => name.toLowerCase().includes(searchInput.toLowerCase())) // search functionality
+          .map(({name, quantity}) => (
             <Box 
             key={name} 
             width="100%" 
@@ -169,8 +262,7 @@ export default function Home() {
             display="flex" 
             alignItems="center" 
             justifyContent="space-between" 
-            bgcolor="#edd96c" 
-            padding={3}
+            bgcolor="#edd96c"
             >
 
               <Typography 
@@ -179,7 +271,7 @@ export default function Home() {
               textAlign="center"
               className="space-mono-regular"
               >
-                {name.charAt(0).toUpperCase() + name.slice(1)}
+                {capitalizeWords(name)}
               </Typography>
 
               <Typography 
@@ -192,7 +284,7 @@ export default function Home() {
               </Typography>
 
             <Stack
-            orientation="vertical"
+            direction="column"
             spacing={1}
             >
               
@@ -201,15 +293,14 @@ export default function Home() {
               label="Enter number:"
               type="number"
               InputLabelProps={{
-                shrink: true,
                 classes: {
-                  root: "input-label",
-                }
+                  root: "space-mono-regular",
+                },
               }}
               InputProps={{
                 classes: {
-                  input: "space-mono-regular"
-                },
+                  input: "space-mono-regular",
+                }
               }}
               variant="standard"
               size="small"
@@ -237,9 +328,18 @@ export default function Home() {
               className="space-mono-regular"
               color="error"
               >
-                Remove
+                Delete
               </Button>
 
+              <Button
+              variant="contained"
+              onClick={() => {
+                clearItem(name);
+              }}
+              className="space-mono-regular"
+              >
+                Clear
+              </Button>
               
 
             </Stack>
