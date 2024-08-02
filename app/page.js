@@ -81,8 +81,10 @@ export default function Home() {
   }
 
   useEffect(() => {
-    updateInventory()
+    updateInventory();
   }, [])
+
+  
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -153,6 +155,11 @@ export default function Home() {
             fullWidthvalue={itemName}
             onChange={(e) => {
               setItemName(e.target.value.trim().toLowerCase())
+            }}
+            InputProps={{
+              classes: {
+                input: "space-mono-regular",
+              }
             }}
             />
 
