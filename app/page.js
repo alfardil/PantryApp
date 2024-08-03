@@ -290,6 +290,7 @@ export default function Home() {
         position="absolute"
         mt={20}
         width="100%"
+        paddingBottom={5}
       >
         <TextField
           id="search-bar"
@@ -312,11 +313,11 @@ export default function Home() {
         />
 
         <Stack
-          width="800px"
-          height={isMobile ? "50vh" : "65vh"}
-          spacing={7.5}
+          width="100%"
+          height={isMobile ? "100vh" : "60vh"}
+          spacing={10}
           overflow="auto"
-          padding={3}
+          paddingTop={5}
         >
 
           {inventory
@@ -407,6 +408,8 @@ export default function Home() {
                   >
                     Clear
                   </Button>
+
+                  <br></br>
                 </Stack>
               </Box>
             ))}
