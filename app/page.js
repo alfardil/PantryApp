@@ -136,6 +136,7 @@ export default function Home() {
   const handleLogout = async () => {
     await signOut(auth);
     setUser(null);
+    setInventory([]);
   };
 
   const isMobile = useMediaQuery("(max-width:600px");
@@ -153,7 +154,7 @@ export default function Home() {
       />
     );
   }
-
+  
   return (
     <Box
       width="100vw"
@@ -171,7 +172,7 @@ export default function Home() {
         width="100%"
         display="flex"
         justifyContent="center"
-        pt={isMobile ? 2 : 0}
+        pt={isMobile ? 2 : 2}
       >
         <Typography
           variant={isMobile ? "h4" : "h2"}
@@ -268,7 +269,7 @@ export default function Home() {
         justifyContent="center"
         alignItems="center"
         width="100%"
-        padding={isMobile ? 5 : 5}
+        padding={isMobile ? 5 : 3}
         position="relative"
       >
         <Button
@@ -292,40 +293,47 @@ export default function Home() {
         width="100%"
         paddingBottom={5}
       >
-        <TextField
-          id="search-bar"
-          label="Search Items"
-          variant="outlined"
-          size="small"
-          style={{ width: "100%", marginTop: "20px" }}
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          InputLabelProps={{
-            classes: {
-              root: "space-mono-regular",
-            },
-          }}
-          InputProps={{
-            classes: {
-              input: "space-mono-regular",
-            },
-          }}
-        />
-
-        <Stack
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
           width="100%"
+          paddingBottom={2}
+        >
+          <TextField
+            id="search-bar"
+            label="Search Items"
+            variant="outlined"
+            size="small"
+            style={{ width: "50%", marginTop: "20px" }}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            InputLabelProps={{
+              classes: {
+                root: "space-mono-regular",
+              },
+            }}
+            InputProps={{
+              classes: {
+                input: "space-mono-regular",
+              },
+            }}
+          />
+        </Box>
+        <Stack
+          width={isMobile ? "75%" : "90%"}
           height={isMobile ? "100vh" : "60vh"}
           spacing={10}
           overflow="auto"
           paddingTop={5}
+          margin="auto"
         >
-
           {inventory
             .filter(
               ({ id }) =>
                 id && id.toLowerCase().includes(searchInput.toLowerCase())
             ) // search functionality
-            .map(({id, quantity }) => (
+            .map(({ id, quantity }) => (
               <Box
                 key={id}
                 width="100%"
@@ -355,6 +363,7 @@ export default function Home() {
                   {quantity}
                 </Typography>
 
+                {/* buttons on the right side */}
                 <Stack direction="column" spacing={1}>
                   <TextField
                     id="standard-number"
