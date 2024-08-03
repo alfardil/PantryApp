@@ -321,7 +321,7 @@ export default function Home() {
           />
         </Box>
         <Stack
-          width={isMobile ? "75%" : "90%"}
+          width={isMobile ? "75%" : "80%"}
           height={isMobile ? "100vh" : "60vh"}
           spacing={10}
           overflow="auto"
