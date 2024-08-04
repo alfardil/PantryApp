@@ -119,16 +119,11 @@ export default function Home() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        const storedInventory = localStorage.getItem(currentUser.uid);
-        if (storedInventory) {
-          setInventory(JSON.parse(storedInventory));
-        } else {
-          updateInventory();
-        }
+        updateInventory();
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [updateInventory, user]);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
