@@ -175,7 +175,7 @@ export default function Home() {
           className="space-mono-regular"
           align="center"
         >
-          Inventory Items
+          Inventory
         </Typography>
       </Box>
 

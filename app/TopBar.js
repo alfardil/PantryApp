@@ -16,7 +16,7 @@ const TopBar = ({ user, onLogout }) => {
           style={{ flexGrow: 1 }}
           className="space-mono-regular"
         >
-          Inventory Management
+          StockUp
         </Typography>
         {user ? (
           <Box display="flex" alignItems="center" style={{ flexWrap: "wrap" }}>
