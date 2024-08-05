@@ -64,7 +64,7 @@ const SignUp = ({ onSignUp, onToggle }) => {
           },
         }}
       />
-      <Button variant="contained" onClick={handleSignUp}>
+      <Button variant="contained" className="space-mono-regular" onClick={handleSignUp}>
         Sign Up
       </Button>
       {error && (
@@ -78,7 +78,7 @@ const SignUp = ({ onSignUp, onToggle }) => {
         style={{ marginTop: "16px" }}
       >
         {" "}
-        Log in{" "}
+        Have an account? Log in{" "}
       </Button>
     </Box>
   );

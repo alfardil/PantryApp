@@ -87,7 +87,7 @@ const Login = ({ onLogin, onToggle }) => {
         style={{ marginTop: "16px" }}
       >
         {" "}
-        Sign up{" "}
+        Dont have an account? Sign up{" "}
       </Button>
     </Box>
   );
