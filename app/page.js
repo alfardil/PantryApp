@@ -318,7 +318,7 @@ export default function Home() {
         <Stack
           width={isMobile ? "75%" : "80%"}
           height={isMobile ? "100vh" : "60vh"}
-          spacing={10}
+          spacing={isMobile ? 7 : 15}
           overflow="auto"
           paddingTop={5}
           margin="auto"
