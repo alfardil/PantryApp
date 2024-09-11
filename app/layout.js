@@ -4,8 +4,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Pantry Tracker",
-  description: "Check how much stuff you have!",
+  title: "StockUp",
+  description: "Inventory tracker for any of your needs!",
 };
 
 export default function RootLayout({ children }) {
